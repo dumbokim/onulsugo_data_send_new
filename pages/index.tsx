@@ -1,15 +1,60 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { addDoc, doc, setDoc, collection, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  doc,
+  setDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../helpers/firebase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+// import { getTime } from "../helpers/getTime";
 // import { useAlert } from "react-alert";
 
 const Home: NextPage = () => {
-  const [textData, setTextData] = useState("");
+  const [dataList, setDataList] = useState<any>([]);
+
+  let todayDate = "";
 
   const dbTable = "onulsugoList";
+
+  const getTime = async () => {
+    let today = new Date();
+    const curTime = today.getHours();
+    if (curTime < 12) {
+      today = new Date(today.setDate(today.getDate() - 1));
+    }
+    const year = today.getFullYear();
+    const month = ("0" + (today.getMonth() + 1)).slice(-2);
+    const day = ("0" + today.getDate()).slice(-2);
+    todayDate = year + "-" + month + "-" + day;
+  };
+
+  const getData = async () => {
+    await getTime();
+
+    const querySnapshot = await getDocs(
+      query(collection(db, dbTable), where("날짜", "==", todayDate))
+    );
+
+    let tempList: any = [];
+
+    querySnapshot.docs.forEach((doc) => {
+      tempList.push(doc.data());
+    });
+
+    setDataList(tempList);
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const [textData, setTextData] = useState("");
 
   const addData = async (e: any) => {
     e.preventDefault;
@@ -26,8 +71,8 @@ const Home: NextPage = () => {
       }
     }
 
-    window.alert("전송이 완료되었습니다!");
-    window.location.reload();
+    // window.alert("전송이 완료되었습니다!");
+    // window.location.reload();
   };
 
   const readData = async (e: any) => {
@@ -40,9 +85,24 @@ const Home: NextPage = () => {
 
     console.log(dataList);
 
-    window.alert("전송이 완료되었습니다!");
-    window.location.reload();
+    // window.alert("전송이 완료되었습니다!");
+    // window.location.reload();
   };
+
+  // const readTime = async (e: any) => {
+  //   e.preventDefault;
+  //   e.stopPropagation;
+  //   let today = new Date();
+  //   const curTime = today.getHours();
+  //   if (curTime < 12) {
+  //     today = new Date(today.setDate(today.getDate() - 1));
+  //   }
+  //   const year = today.getFullYear();
+  //   const month = ("0" + (today.getMonth() + 1)).slice(-2);
+  //   const day = ("0" + today.getDate()).slice(-2);
+  //   const time = year + "-" + month + "-" + day;
+  //   console.log(curTime);
+  // };
 
   return (
     <div className={styles.container}>
@@ -71,6 +131,17 @@ const Home: NextPage = () => {
 
         <button style={{ padding: "15px", margin: "10px" }} onClick={readData}>
           읽기
+        </button>
+
+        <button
+          style={{ padding: "15px", margin: "10px" }}
+          onClick={() => {
+            // getData();
+
+            console.log(dataList);
+          }}
+        >
+          시간 체크
         </button>
       </div>
     </div>

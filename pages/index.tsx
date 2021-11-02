@@ -52,7 +52,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [getData]);
 
   const [textData, setTextData] = useState("");
 

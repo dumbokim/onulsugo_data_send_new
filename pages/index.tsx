@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 
 const Home: NextPage = () => {
   const [dataList, setDataList] = useState<any>([]);
+  const [frontText, setFrontText] = useState("전송 대기중");
 
   let todayDate = "";
 
@@ -50,9 +51,7 @@ const Home: NextPage = () => {
     setDataList(tempList);
   };
 
-  useEffect(() => {
-    getData();
-  }, []);
+  useEffect(() => {}, [frontText]);
 
   const [textData, setTextData] = useState("");
 
@@ -71,8 +70,11 @@ const Home: NextPage = () => {
         });
       } catch (e) {
         console.error(e);
+        setFrontText("에러 발생!");
       }
     }
+
+    setFrontText("전송 완료");
 
     // window.alert("전송이 완료되었습니다!");
     // window.location.reload();
@@ -132,20 +134,13 @@ const Home: NextPage = () => {
           데이터 전송
         </button>
 
-        <button style={{ padding: "15px", margin: "10px" }} onClick={readData}>
+        {/* <button style={{ padding: "15px", margin: "10px" }} onClick={readData}>
           읽기
-        </button>
+        </button> */}
 
-        <button
-          style={{ padding: "15px", margin: "10px" }}
-          onClick={() => {
-            // getData();
-
-            console.log(dataList);
-          }}
-        >
-          시간 체크
-        </button>
+        <div style={{ textAlign: "center", color: "blue", margin: "15px" }}>
+          {frontText}
+        </div>
       </div>
     </div>
   );

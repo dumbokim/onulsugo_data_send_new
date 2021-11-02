@@ -52,7 +52,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     getData();
-  }, [getData]);
+  }, []);
 
   const [textData, setTextData] = useState("");
 
@@ -65,7 +65,10 @@ const Home: NextPage = () => {
     for (let i = 0; i < jsonData.length; i++) {
       // console.log(jsonData[i]);
       try {
-        await addDoc(collection(db, dbTable), jsonData[i]);
+        await addDoc(collection(db, dbTable), {
+          ...jsonData[i],
+          checked: false,
+        });
       } catch (e) {
         console.error(e);
       }

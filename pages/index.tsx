@@ -67,9 +67,12 @@ const Home: NextPage = () => {
         await addDoc(collection(db, dbTable), {
           ...jsonData[i],
           checked: false,
+          index: i+1,
         });
       } catch (e) {
         console.error(e);
+        console.log(i+1 ,'에서 에러 발생');
+        
         setFrontText("에러 발생!");
       }
     }

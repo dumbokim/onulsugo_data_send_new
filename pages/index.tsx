@@ -3,114 +3,88 @@ import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import {
   addDoc,
-  doc,
-  setDoc,
   collection,
-  getDocs,
-  query,
-  where,
 } from "firebase/firestore";
 import { db } from "../helpers/firebase";
 import { useState, useEffect } from "react";
-// import { getTime } from "../helpers/getTime";
-// import { useAlert } from "react-alert";
 
 const Home: NextPage = () => {
-  const [dataList, setDataList] = useState<any>([]);
   const [frontText, setFrontText] = useState("전송 대기중");
-
-  let todayDate = "";
+  const [btnState, setBtnState] = useState(false);
+  const [textData, setTextData] = useState("");
 
   const dbTable = "onulsugoList";
 
-  const getTime = async () => {
-    let today = new Date();
-    const curTime = today.getHours();
-    if (curTime < 12) {
-      today = new Date(today.setDate(today.getDate() - 1));
-    }
-    const year = today.getFullYear();
-    const month = ("0" + (today.getMonth() + 1)).slice(-2);
-    const day = ("0" + today.getDate()).slice(-2);
-    todayDate = year + "-" + month + "-" + day;
-  };
-
-  const getData = async () => {
-    await getTime();
-
-    const querySnapshot = await getDocs(
-      query(collection(db, dbTable), where("날짜", "==", todayDate))
-    );
-
-    let tempList: any = [];
-
-    querySnapshot.docs.forEach((doc) => {
-      tempList.push(doc.data());
-    });
-
-    setDataList(tempList);
-  };
-
   useEffect(() => {}, [frontText]);
 
-  const [textData, setTextData] = useState("");
+  const csvToJson = async (csv_string:string) => {
+    setFrontText('전송중 입니다.');
+    setBtnState(true);
 
-  const addData = async (e: any) => {
-    e.preventDefault;
-    e.stopPropagation;
+    const rows = csv_string.split("\n");
 
-    const jsonData = await JSON.parse(textData);
+    let jsonArr = [];
 
-    for (let i = 0; i < jsonData.length; i++) {
-      // console.log(jsonData[i]);
+    const header = rows[0].split(",");
+
+    const headers = header[0].split("\t");    
+    
+
+    for (let i = 1; i < rows.length; i++) {
+      let obj: {
+        [name: string]: string;
+      } = {};
+
+      const row = rows[i].split(",");
+      console.log(row);
+      
+      
+      const value = row[0].split('\t');
+      console.log(value);
+      
+      
+      for (let j = 0; j < headers.length; j++) {
+
+        obj[headers[j]] = value[j];
+      }
+
+      jsonArr.push(obj);
+    }
+
+    return jsonArr;
+  }
+
+  const jsonFileSend = async (jsonFile:any) => {
+    for (let i = 0; i < jsonFile.length; i++) {
       try {
         await addDoc(collection(db, dbTable), {
-          ...jsonData[i],
+          ...jsonFile[i],
           checked: false,
           index: i+1,
         });
       } catch (e) {
         console.error(e);
-        console.log(i+1 ,'에서 에러 발생');
+        console.log(i+1 ,'번째에서 에러 발생');
         
         setFrontText("에러 발생!");
       }
     }
 
+    setBtnState(false);
     setFrontText("전송 완료");
+  }
 
-    // window.alert("전송이 완료되었습니다!");
-    // window.location.reload();
-  };
 
-  const readData = async (e: any) => {
+  const addData = async (e: any) => {
     e.preventDefault;
     e.stopPropagation;
 
-    const dbData = await getDocs(collection(db, dbTable));
+    let jsonFile = await csvToJson(textData);
 
-    const dataList = dbData.docs.map((doc) => doc.data());
+    await jsonFileSend(jsonFile);
 
-    console.log(dataList);
-
-    // window.alert("전송이 완료되었습니다!");
-    // window.location.reload();
+    // const jsonData = await JSON.parse(jsonFile);
   };
-
-  // const readTime = async (e: any) => {
-  //   e.preventDefault;
-  //   e.stopPropagation;
-  //   let today = new Date();
-  //   const curTime = today.getHours();
-  //   if (curTime < 12) {
-  //     today = new Date(today.setDate(today.getDate() - 1));
-  //   }
-  //   const year = today.getFullYear();
-  //   const month = ("0" + (today.getMonth() + 1)).slice(-2);
-  //   const day = ("0" + today.getDate()).slice(-2);
-  //   const time = year + "-" + month + "-" + day;
-  //   console.log(curTime);
-  // };
 
   return (
     <div className={styles.container}>
@@ -122,24 +96,17 @@ const Home: NextPage = () => {
 
       <h2>오늘수거 데이터 보내기</h2>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        {/* <form onSubmit={addData}> */}
         <textarea
           style={{ width: "50vw", height: "40vh" }}
           onChange={(e) => {
             setTextData(e.target.value);
-            // console.log(textData);
           }}
         />
-        {/* </form> */}
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <button style={{ padding: "15px", margin: "10px" }} onClick={addData}>
+        <button style={{ padding: "15px", margin: "10px" }} onClick={addData} disabled={btnState}>
           데이터 전송
         </button>
-
-        {/* <button style={{ padding: "15px", margin: "10px" }} onClick={readData}>
-          읽기
-        </button> */}
 
         <div style={{ textAlign: "center", color: "blue", margin: "15px" }}>
           {frontText}

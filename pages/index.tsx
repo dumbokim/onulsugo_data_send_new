@@ -13,12 +13,29 @@ const Home: NextPage = () => {
   const [btnState, setBtnState] = useState(false);
   const [textData, setTextData] = useState("");
 
-  const dbTable = "onulsugoList";
 
-  useEffect(() => {}, [frontText]);
+  const getTime = async () => {
+    let today = new Date();
+    const curTime = today.getHours();
+    if (curTime <= 18) {
+      today = new Date(today.setDate(today.getDate() - 1));
+    }
+    const year = today.getFullYear();
+    const month = ("0" + (today.getMonth() + 1)).slice(-2);
+    const day = ("0" + today.getDate()).slice(-2);
+    let todayDate = year + "-" + month + "-" + day;
+    return todayDate;
+
+  };
+
+
+  useEffect(() => {
+    
+  }, [frontText]);
 
   const csvToJson = async (csv_string:string) => {
     setFrontText('전송중 입니다.');
+
     setBtnState(true);
 
     const rows = csv_string.split("\n");
@@ -55,6 +72,12 @@ const Home: NextPage = () => {
   }
 
   const jsonFileSend = async (jsonFile:any) => {
+    const todayDate = await getTime();
+
+    console.log(todayDate);
+
+    const dbTable = `onulsugoList${todayDate}`;
+
     for (let i = 0; i < jsonFile.length; i++) {
       try {
         await addDoc(collection(db, dbTable), {
@@ -62,11 +85,12 @@ const Home: NextPage = () => {
           checked: false,
           index: i+1,
         });
+        console.log('dbTable : ',dbTable);
       } catch (e) {
         console.error(e);
         console.log(i+1 ,'번째에서 에러 발생');
         
-        setFrontText("에러 발생!");
+        setFrontText(`${i+1}번째 데이터에서 에러 발생!`);
       }
     }
 
@@ -94,7 +118,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <h2 style={{color: "orange"}}>오늘수거 데이터 보내기 v2</h2>
+      <h2 style={{color: "orange"}}>오늘수거 데이터 보내기 v3</h2>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <textarea
           style={{ width: "50vw", height: "40vh" }}

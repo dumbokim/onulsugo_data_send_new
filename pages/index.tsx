@@ -62,7 +62,7 @@ const Home: NextPage = () => {
       
       for (let j = 0; j < headers.length; j++) {
 
-        obj[headers[j]] = value[j];
+        obj[headers[j]] = value[j].toString();
       }
 
       jsonArr.push(obj);

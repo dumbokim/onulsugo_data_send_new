@@ -8,21 +8,25 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.7.2",
     "@types/styled-components": "^5.1.21",
     "axios": "^0.25.0",
     "babel-plugin-styled-components": "^2.0.2",
     "firebase": "^9.2.0",
     "next": "12.0.2",
+    "next-redux-wrapper": "^7.0.5",
     "react": "17.0.2",
     "react-alert": "^7.0.3",
     "react-alert-template-basic": "^1.0.2",
     "react-dom": "17.0.2",
+    "react-redux": "^7.2.6",
     "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@types/node": "16.11.6",
     "@types/react": "17.0.33",
     "@types/react-alert": "^5.2.1",
+    "@types/react-redux": "^7.1.22",
     "eslint": "7",
     "eslint-config-next": "12.0.2",
     "eslint-config-prettier": "^8.3.0",
